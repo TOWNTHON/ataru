@@ -18,7 +18,7 @@ favorite = 'airi'
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
-    console.log res.envelope.user.name
+    console.log res.envelope.bot.name
     return if res.envelope.user.name is favorite
 
     room = res.envelope.room
