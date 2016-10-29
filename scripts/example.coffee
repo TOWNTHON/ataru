@@ -22,7 +22,6 @@ bot_id_map = {
   "B2VU24EDT": "riko"
 }
 
-
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
