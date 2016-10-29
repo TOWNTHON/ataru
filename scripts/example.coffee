@@ -13,9 +13,13 @@ async = require('async')
 
 rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
+favorite = 'airi'
+
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
+    return if res.envelope.user.name is favorite
+
     room = res.envelope.room
 
     candidate = rules[res.match[1]]
@@ -32,6 +36,11 @@ module.exports = (robot) ->
           setTimeout(callback, 1000)
 
       async.series(series)
+
+  robot.respond /favorite (.*)/i, (res) ->
+    room = res.envelope.room
+    favorite = rules[res.match[1]]
+    res.send '本命を' + favorite _ 'に変更しました。悪い男！'
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
