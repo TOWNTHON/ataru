@@ -18,7 +18,7 @@ favorite = 'airi'
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
-    console.log res.envelope.bot.name
+    console.log res.envelope
     return if res.envelope.user.name is favorite
 
     room = res.envelope.room
@@ -41,7 +41,7 @@ module.exports = (robot) ->
   robot.respond /favorite (.*)/i, (res) ->
     room = res.envelope.room
     favorite = rules[res.match[1]]
-    res.send '本命を' + favorite _ 'に変更しました。悪い男！'
+    res.send '本命を' + favorite + 'に変更しました。悪い男！'
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
