@@ -1,3 +1,31 @@
+# 環境構築
+## Requirement
+* Git
+* Node.js (homebrew でインストールする）
+* Redis（homebrewでするインストール
+
+## ソースコードのダウンロード
+
+```
+$ git clone https://github.com/TOWNTHON/ataru.git
+```
+
+### hubotの下準備
+
+Redisの起動
+
+```
+$ redis-server
+```
+
+### hubotの起動
+
+```
+$ cd ataru
+$ bin/hubot
+```
+
+
 # ataru
 
 ataru is a chat bot built on the [Hubot][hubot] framework. It was
