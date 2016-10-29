@@ -20,10 +20,12 @@ module.exports = (robot) ->
     candidate = rules[res.match[1]]
 
     if candidate
-      response = candidate[Math.floor(Math.random() * candidate.length)]
+      responses = candidate[Math.floor(Math.random() * candidate.length)]
 
       client = robot.adapter.client
-      client.web.chat.postMessage(room, response, {as_user: true} )
+
+      for response in responses
+        client.web.chat.postMessage(room, response, {as_user: true} )
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
