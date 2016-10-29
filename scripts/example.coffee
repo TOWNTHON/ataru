@@ -15,11 +15,15 @@ rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
+    room = res.envelope.room
+
     candidate = rules[res.match[1]]
 
     if candidate
       response = candidate[Math.floor(Math.random() * candidate.length)]
-      res.send response
+
+      client = robot.adapter.client
+      client.web.chat.postMessage(room, response, {as_user: true} )
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
