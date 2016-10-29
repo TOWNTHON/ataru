@@ -8,10 +8,18 @@
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
+fs = require('fs')
+
+rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
+
 module.exports = (robot) ->
 
-  robot.respond /こんにちは/i, (res) ->
-    res.send 'ぼくあたる. 彼女欲しいよ'
+  robot.respond /(.*)/i, (res) ->
+    candidate = rules[res.match[1]]
+
+    if candidate
+      response = candidate[Math.floor(Math.random() * candidate.length)]
+      res.send response
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
