@@ -11,22 +11,30 @@
 fs = require('fs')
 async = require('async')
 
-rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
+airi_rules = JSON.parse(fs.readFileSync('rules/airi.json', 'utf8'))
+chiharu_rules = JSON.parse(fs.readFileSync('rules/chiharu.json', 'utf8'))
 
 favorite = 'airi'
 
 bot_id_map = {
-  "airi": "B2VTXSF0D",
-  "chiharu": "B2VU35LA3",
-  "riko": "B2VU24EDT"
+  "B2VTXSF0D": "airi",
+  "B2VU35LA3": "chiharu",
+  "B2VU24EDT": "riko"
 }
+
 
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
-    return if res.envelope.user.id is bot_id_map[favorite]
+    user = bot_id_map[res.envelope.user.id]
+    return if user is favorite
 
     room = res.envelope.room
+
+    if user is 'airi'
+      rules = airi_rules
+    else if user is 'chiharu'
+      rules = chiharu_rules
 
     candidate = rules[res.match[1]]
 
