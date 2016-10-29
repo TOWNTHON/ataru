@@ -10,6 +10,7 @@
 
 fs = require('fs')
 async = require('async')
+request = require('request')
 
 rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
@@ -18,12 +19,12 @@ module.exports = (robot) ->
   robot.hear /(.*)/i, (res) ->
     room = res.envelope.room
 
-    candidate = rules[res.match[1]]
+    utt = res.match[1]
+    candidate = rules[utt]
+    client = robot.adapter.client
 
     if candidate
       responses = candidate[Math.floor(Math.random() * candidate.length)]
-
-      client = robot.adapter.client
 
       series = responses.map (response) ->
         (callback) ->
@@ -32,6 +33,19 @@ module.exports = (robot) ->
           setTimeout(callback, 1000)
 
       async.series(series)
+    else
+      request.post
+        url: 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue'
+        qs:
+          APIKEY: "464a4f49386a62414734304b4674706c6371572f6b724c626c39726e7a475057457133727552534a2f572f"
+        json:
+          utt: utt
+      ,(err,response,body) ->
+        if response.statusCode is 200
+          # SUCCESS
+          client.web.chat.postMessage(room, body.utt, {as_user: true} )
+        else
+          # ERROR
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
