@@ -45,7 +45,7 @@ module.exports = (robot) ->
 
   robot.hear /favorite (.*)/i, (res) ->
     room = res.envelope.room
-    favorite = rules[res.match[1]]
+    favorite = res.match[1]
     res.send '本命を' + favorite + 'に変更しました。悪い男！'
 
   # robot.hear /badger/i, (res) ->
