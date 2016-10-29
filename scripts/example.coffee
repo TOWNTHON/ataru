@@ -15,11 +15,16 @@ rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
 favorite = 'airi'
 
+bot_id_map = {
+  "airi": "B2VTXSF0D",
+  "chiharu": "B2VU35LA3",
+  "riko": "B2VU24EDT"
+}
+
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
-    console.log res
-    return if res.massage.room.indexOf(favorite) isnt -1
+    return if res.envelope.user.id is bot_id_map[favorite]
 
     room = res.envelope.room
 
