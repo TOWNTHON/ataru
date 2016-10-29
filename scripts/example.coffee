@@ -14,7 +14,7 @@ rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
 module.exports = (robot) ->
 
-  robot.respond /(.*)/i, (res) ->
+  robot.hear /(.*)/i, (res) ->
     candidate = rules[res.match[1]]
 
     if candidate
