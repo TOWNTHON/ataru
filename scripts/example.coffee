@@ -18,6 +18,7 @@ favorite = 'airi'
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
+    console.log res
     return if res.massage.room.indexOf(favorite) isnt -1
 
     room = res.envelope.room
