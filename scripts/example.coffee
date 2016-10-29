@@ -9,6 +9,7 @@
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 fs = require('fs')
+async = require('async')
 
 rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
@@ -24,8 +25,13 @@ module.exports = (robot) ->
 
       client = robot.adapter.client
 
-      for response in responses
-        client.web.chat.postMessage(room, response, {as_user: true} )
+      series = responses.map (response) ->
+        (callback) ->
+          # console.log response
+          client.web.chat.postMessage(room, response, {as_user: true} )
+          setTimeout(callback, 1000)
+
+      async.series(series)
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
