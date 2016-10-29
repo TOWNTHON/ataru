@@ -48,7 +48,9 @@ module.exports = (robot) ->
           client.web.chat.postMessage(room, response, {as_user: true} )
           setTimeout(callback, 1000)
 
-      async.series(series)
+      setTimeout ->
+        async.series(series)
+      , 3000
 
   robot.hear /favorite (.*)/i, (res) ->
     room = res.envelope.room
