@@ -18,10 +18,13 @@ Redisの起動
 $ redis-server
 ```
 
+
+
 ### hubotの起動
 
 ```
 $ cd ataru
+$ npm install
 $ bin/hubot
 ```
 
