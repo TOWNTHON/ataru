@@ -14,9 +14,14 @@ request = require('request')
 
 rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
+favorite = 'airi'
+
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
+    console.log res.envelope
+    return if res.envelope.user.name is favorite
+
     room = res.envelope.room
 
     utt = res.match[1]
@@ -46,6 +51,11 @@ module.exports = (robot) ->
           client.web.chat.postMessage(room, body.utt, {as_user: true} )
         else
           # ERROR
+
+  robot.respond /favorite (.*)/i, (res) ->
+    room = res.envelope.room
+    favorite = rules[res.match[1]]
+    res.send '本命を' + favorite + 'に変更しました。悪い男！'
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
