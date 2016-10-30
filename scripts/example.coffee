@@ -28,7 +28,6 @@ module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
     user = bot_id_map[res.envelope.user.id]
-    return if user is favorite
 
     room = res.envelope.room
     utt = res.match[1]
@@ -70,11 +69,6 @@ module.exports = (robot) ->
           , 6000
         else
           # ERROR
-
-  robot.hear /favorite (.*)/i, (res) ->
-    room = res.envelope.room
-    favorite = res.match[1]
-    res.send '本命を' + favorite + 'に変更しました。悪い男！'
 
   robot.respond /foolreply only (.*)/i, (res) ->
     room = res.envelope.room
