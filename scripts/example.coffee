@@ -64,7 +64,9 @@ module.exports = (robot) ->
       ,(err,response,body) ->
         if response.statusCode is 200
           # SUCCESS
-          client.web.chat.postMessage(room, body.utt, {as_user: true} )
+          setTimeout ->
+            client.web.chat.postMessage(room, body.utt, {as_user: true} )
+          , 6000
         else
           # ERROR
 
