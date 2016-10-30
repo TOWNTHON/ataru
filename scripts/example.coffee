@@ -12,18 +12,30 @@ fs = require('fs')
 async = require('async')
 request = require('request')
 
-rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
+airi_rules = JSON.parse(fs.readFileSync('rules/airi.json', 'utf8'))
+chiharu_rules = JSON.parse(fs.readFileSync('rules/chiharu.json', 'utf8'))
 
 favorite = 'airi'
 foolreply_only_name = 'chiharu'
 
+bot_id_map = {
+  "B2VTXSF0D": "airi",
+  "B2VU35LA3": "chiharu",
+  "B2VU24EDT": "riko"
+}
+
 module.exports = (robot) ->
 
   robot.hear /(.*)/i, (res) ->
-    console.log res.envelope
-    return if res.envelope.user.name is favorite
+    user = bot_id_map[res.envelope.user.id]
+    return if user is favorite
 
     room = res.envelope.room
+
+    if user is 'airi'
+      rules = airi_rules
+    else if user is 'chiharu'
+      rules = chiharu_rules
 
     utt = res.match[1]
     candidate = rules[utt]
@@ -39,7 +51,9 @@ module.exports = (robot) ->
           client.web.chat.postMessage(room, response, {as_user: true} )
           setTimeout(callback, 1000)
 
-      async.series(series)
+      setTimeout ->
+        async.series(series)
+      , 3000
     else
       request.post
         url: 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue'
@@ -54,9 +68,9 @@ module.exports = (robot) ->
         else
           # ERROR
 
-  robot.respond /favorite (.*)/i, (res) ->
+  robot.hear /favorite (.*)/i, (res) ->
     room = res.envelope.room
-    favorite = rules[res.match[1]]
+    favorite = res.match[1]
     res.send '本命を' + favorite + 'に変更しました。悪い男！'
 
   robot.respond /foolreply only (.*)/i, (res) ->
