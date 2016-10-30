@@ -31,14 +31,15 @@ module.exports = (robot) ->
     return if user is favorite
 
     room = res.envelope.room
+    utt = res.match[1]
 
     if user is 'airi'
       rules = airi_rules
+      candidate = rules[utt]
     else if user is 'chiharu'
       rules = chiharu_rules
+      candidate = rules[utt]
 
-    utt = res.match[1]
-    candidate = rules[utt]
     client = robot.adapter.client
 
     if candidate and user in foolreply_off_names
