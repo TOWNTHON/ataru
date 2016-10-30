@@ -16,7 +16,7 @@ airi_rules = JSON.parse(fs.readFileSync('rules/airi.json', 'utf8'))
 chiharu_rules = JSON.parse(fs.readFileSync('rules/chiharu.json', 'utf8'))
 
 favorite = 'airi'
-foolreply_only_name = 'chiharu'
+foolreply_off_names = ['chiharu', 'airi']
 
 bot_id_map = {
   "B2VTXSF0D": "airi",
@@ -41,7 +41,7 @@ module.exports = (robot) ->
     candidate = rules[utt]
     client = robot.adapter.client
 
-    if candidate and res.envelope.user.name in foolreply_off_names
+    if candidate and user in foolreply_off_names
 
       responses = candidate[Math.floor(Math.random() * candidate.length)]
 
@@ -54,7 +54,7 @@ module.exports = (robot) ->
       setTimeout ->
         async.series(series)
       , 3000
-    else
+    else if user is 'riko'
       request.post
         url: 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue'
         qs:
