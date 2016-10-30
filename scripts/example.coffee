@@ -10,11 +10,13 @@
 
 fs = require('fs')
 async = require('async')
+request = require('request')
 
 airi_rules = JSON.parse(fs.readFileSync('rules/airi.json', 'utf8'))
 chiharu_rules = JSON.parse(fs.readFileSync('rules/chiharu.json', 'utf8'))
 
 favorite = 'airi'
+foolreply_only_name = 'chiharu'
 
 bot_id_map = {
   "B2VTXSF0D": "airi",
@@ -35,12 +37,13 @@ module.exports = (robot) ->
     else if user is 'chiharu'
       rules = chiharu_rules
 
-    candidate = rules[res.match[1]]
+    utt = res.match[1]
+    candidate = rules[utt]
+    client = robot.adapter.client
 
-    if candidate
+    if candidate and res.envelope.user.name in foolreply_off_names
+
       responses = candidate[Math.floor(Math.random() * candidate.length)]
-
-      client = robot.adapter.client
 
       series = responses.map (response) ->
         (callback) ->
@@ -51,8 +54,121 @@ module.exports = (robot) ->
       setTimeout ->
         async.series(series)
       , 3000
+    else
+      request.post
+        url: 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue'
+        qs:
+          APIKEY: process.env.DOCOMO_API_KEY
+        json:
+          utt: utt
+      ,(err,response,body) ->
+        if response.statusCode is 200
+          # SUCCESS
+          client.web.chat.postMessage(room, body.utt, {as_user: true} )
+        else
+          # ERROR
 
   robot.hear /favorite (.*)/i, (res) ->
     room = res.envelope.room
     favorite = res.match[1]
     res.send '本命を' + favorite + 'に変更しました。悪い男！'
+
+  robot.respond /foolreply only (.*)/i, (res) ->
+    room = res.envelope.room
+    foolreply_only_name = rules[res.match[1]]
+    res.send foolreply_only_name + 'に対してFOOLREPLYがONになりました'
+
+  # robot.hear /badger/i, (res) ->
+  #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
+  #
+  # robot.respond /open the (.*) doors/i, (res) ->
+  #   doorType = res.match[1]
+  #   if doorType is "pod bay"
+  #     res.reply "I'm afraid I can't let you do that."
+  #   else
+  #     res.reply "Opening #{doorType} doors"
+  #
+  # robot.hear /I like pie/i, (res) ->
+  #   res.emote "makes a freshly baked pie"
+  #
+  # lulz = ['lol', 'rofl', 'lmao']
+  #
+  # robot.respond /lulz/i, (res) ->
+  #   res.send res.random lulz
+  #
+  # robot.topic (res) ->
+  #   res.send "#{res.message.text}? That's a Paddlin'"
+  #
+  #
+  # enterReplies = ['Hi', 'Target Acquired', 'Firing', 'Hello friend.', 'Gotcha', 'I see you']
+  # leaveReplies = ['Are you still there?', 'Target lost', 'Searching']
+  #
+  # robot.enter (res) ->
+  #   res.send res.random enterReplies
+  # robot.leave (res) ->
+  #   res.send res.random leaveReplies
+  #
+  # answer = process.env.HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING
+  #
+  # robot.respond /what is the answer to the ultimate question of life/, (res) ->
+  #   unless answer?
+  #     res.send "Missing HUBOT_ANSWER_TO_THE_ULTIMATE_QUESTION_OF_LIFE_THE_UNIVERSE_AND_EVERYTHING in environment: please set and try again"
+  #     return
+  #   res.send "#{answer}, but what is the question?"
+  #
+  # robot.respond /you are a little slow/, (res) ->
+  #   setTimeout () ->
+  #     res.send "Who you calling 'slow'?"
+  #   , 60 * 1000
+  #
+  # annoyIntervalId = null
+  #
+  # robot.respond /annoy me/, (res) ->
+  #   if annoyIntervalId
+  #     res.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
+  #     return
+  #
+  #   res.send "Hey, want to hear the most annoying sound in the world?"
+  #   annoyIntervalId = setInterval () ->
+  #     res.send "AAAAAAAAAAAEEEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIHHHHHHHHHH"
+  #   , 1000
+  #
+  # robot.respond /unannoy me/, (res) ->
+  #   if annoyIntervalId
+  #     res.send "GUYS, GUYS, GUYS!"
+  #     clearInterval(annoyIntervalId)
+  #     annoyIntervalId = null
+  #   else
+  #     res.send "Not annoying you right now, am I?"
+  #
+  #
+  # robot.router.post '/hubot/chatsecrets/:room', (req, res) ->
+  #   room   = req.params.room
+  #   data   = JSON.parse req.body.payload
+  #   secret = data.secret
+  #
+  #   robot.messageRoom room, "I have a secret: #{secret}"
+  #
+  #   res.send 'OK'
+  #
+  # robot.error (err, res) ->
+  #   robot.logger.error "DOES NOT COMPUTE"
+  #
+  #   if res?
+  #     res.reply "DOES NOT COMPUTE"
+  #
+  # robot.respond /have a soda/i, (res) ->
+  #   # Get number of sodas had (coerced to a number).
+  #   sodasHad = robot.brain.get('totalSodas') * 1 or 0
+  #
+  #   if sodasHad > 4
+  #     res.reply "I'm too fizzy.."
+  #
+  #   else
+  #     res.reply 'Sure!'
+  #
+  #     robot.brain.set 'totalSodas', sodasHad+1
+  #
+  # robot.respond /sleep it off/i, (res) ->
+  #   robot.brain.set 'totalSodas', 0
+  #   res.reply 'zzzzz'
