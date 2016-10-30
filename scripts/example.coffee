@@ -15,6 +15,7 @@ request = require('request')
 rules = JSON.parse(fs.readFileSync('rules/example.json', 'utf8'))
 
 favorite = 'airi'
+foolreply_only_name = 'chiharu'
 
 module.exports = (robot) ->
 
@@ -28,7 +29,8 @@ module.exports = (robot) ->
     candidate = rules[utt]
     client = robot.adapter.client
 
-    if candidate
+    if candidate and res.envelope.user.name in foolreply_off_names
+
       responses = candidate[Math.floor(Math.random() * candidate.length)]
 
       series = responses.map (response) ->
@@ -42,7 +44,7 @@ module.exports = (robot) ->
       request.post
         url: 'https://api.apigw.smt.docomo.ne.jp/dialogue/v1/dialogue'
         qs:
-          APIKEY: "464a4f49386a62414734304b4674706c6371572f6b724c626c39726e7a475057457133727552534a2f572f"
+          APIKEY: process.env.DOCOMO_API_KEY
         json:
           utt: utt
       ,(err,response,body) ->
@@ -56,6 +58,11 @@ module.exports = (robot) ->
     room = res.envelope.room
     favorite = rules[res.match[1]]
     res.send '本命を' + favorite + 'に変更しました。悪い男！'
+
+  robot.respond /foolreply only (.*)/i, (res) ->
+    room = res.envelope.room
+    foolreply_only_name = rules[res.match[1]]
+    res.send foolreply_only_name + 'に対してFOOLREPLYがONになりました'
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
